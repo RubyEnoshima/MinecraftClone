@@ -12,10 +12,15 @@ public class PlayerController : MonoBehaviour
     bool enSuelo;
 
     public float speed = 12f;
-    public float Gravedad = -9.81f;
+    public float Gravedad = -19.62f;
+    public bool gravedadON = true;
     public float jumpHeight = 3f;
 
     Vector3 velocity; // gravedad
+
+    void Start() {
+        if(!gravedadON) Gravedad = 0;
+    }
 
     void Moverse(){
         enSuelo = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
@@ -31,12 +36,19 @@ public class PlayerController : MonoBehaviour
         controller.Move(move * speed * Time.deltaTime);
 
         if(Input.GetButtonDown("Jump") && enSuelo){
-            velocity.y = Mathf.Sqrt(jumpHeight * -2f * Gravedad);
+            velocity.y = Mathf.Sqrt(jumpHeight * -1f * Gravedad);
         }
 
         velocity.y += Gravedad * Time.deltaTime;
 
         controller.Move(velocity * Time.deltaTime);
+    }
+
+    // True si está en el mismo sitio que el cubo
+    bool CompruebaPos(Vector3 posCubo){
+        return !((posCubo.x - 0.5 >= transform.position.x || posCubo.x + 0.5 <= transform.position.x) &&
+         //(posCubo.y - 0.5 >= transform.position.y || posCubo.y + 0.5 <= transform.position.y + 2) &&
+         (posCubo.z - 0.5 >= transform.position.z || posCubo.z + 0.5 <= transform.position.z));
     }
 
     // Update is called once per frame
@@ -46,11 +58,11 @@ public class PlayerController : MonoBehaviour
 
         RaycastHit hit;
 
-        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 10f))
+        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 7f))
         {
             Debug.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * hit.distance, Color.yellow);
             if(Input.GetButtonDown("Fire1")){
-                GameObject cubo = hit.transform.gameObject;
+                GameObject cubo = hit.transform.parent.gameObject;
                 Cubo cuboAct = cubo.GetComponent<Cubo>();
                 Vector3 pos = cuboAct.posChunk;
                 List<GameObject> vecinos = cuboAct.chunk.ObtenerVecinos(pos);
@@ -63,6 +75,50 @@ public class PlayerController : MonoBehaviour
                     }
                 }
                 Destroy(cubo);
+            }
+            else if(Input.GetButtonDown("Fire2")){
+                GameObject lado = hit.transform.gameObject;
+                Cubo cuboAct = lado.transform.parent.GetComponent<Cubo>();
+                Vector3 pos = cuboAct.posChunk;
+                Debug.Log(lado);
+                Vector3 posNueva;
+                Cubo cuboNuevo;
+                switch(lado.name){
+                    case "Arriba":
+                        posNueva = new Vector3(1,0,0)+ pos;
+                        break;
+                    case "Abajo":
+                        posNueva = new Vector3(-1,0,0)+ pos;
+                        break;
+                    case "Izquierda":
+                        posNueva = new Vector3(0,-1,0)+ pos;
+                        break;
+                    case "Derecha":
+                        posNueva = new Vector3(0,1,0)+ pos;
+                        break;
+                    case "Delante":
+                        posNueva = new Vector3(0,0,1)+ pos;
+                        break;
+                    case "Detras":
+                        posNueva = new Vector3(0,0,-1)+ pos;
+                        break;
+                    default:
+                        posNueva = new Vector3(-1,-1,-1) + pos;
+                        break;
+                }
+                if(!CompruebaPos(posNueva)){
+                    Chunk chunkNuevo = cuboAct.chunk;
+                    int z = (int)posNueva.x;
+                    int y = (int)posNueva.y;
+                    int x = (int)posNueva.z;
+                    GameObject cuboIns = Instantiate(chunkNuevo.cubo,new Vector3(x, z, y), Quaternion.identity);
+                    cuboIns.transform.parent = chunkNuevo.transform;
+                    cuboIns.name = "Cubo"+z.ToString()+y.ToString()+x.ToString();
+                    cuboIns.GetComponent<Cubo>().chunk = chunkNuevo;
+                    cuboIns.GetComponent<Cubo>().posChunk = posNueva;
+                    chunkNuevo.chunk[z,y,x] = cuboIns;
+
+                }
             }
         }
     }
