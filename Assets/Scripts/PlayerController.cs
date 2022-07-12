@@ -17,9 +17,7 @@ public class PlayerController : MonoBehaviour
 
     Vector3 velocity; // gravedad
 
-    // Update is called once per frame
-    void Update()
-    {
+    void Moverse(){
         enSuelo = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
         if(enSuelo && velocity.y<0){
             velocity.y = -2f;
@@ -39,5 +37,33 @@ public class PlayerController : MonoBehaviour
         velocity.y += Gravedad * Time.deltaTime;
 
         controller.Move(velocity * Time.deltaTime);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        Moverse();
+
+        RaycastHit hit;
+
+        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 10f))
+        {
+            Debug.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * hit.distance, Color.yellow);
+            if(Input.GetButtonDown("Fire1")){
+                GameObject cubo = hit.transform.gameObject;
+                Cubo cuboAct = cubo.GetComponent<Cubo>();
+                Vector3 pos = cuboAct.posChunk;
+                List<GameObject> vecinos = cuboAct.chunk.ObtenerVecinos(pos);
+                cuboAct.chunk.chunk[(int)pos.x,(int)pos.y,(int)pos.z] = null;
+                foreach(var vecino in vecinos){
+                    if(vecino!=null){
+                        Cubo cuboVecino = vecino.GetComponent<Cubo>();
+                        cuboVecino.QuitarCaras(cuboVecino.chunk.ObtenerVecinos(cuboVecino.posChunk));
+
+                    }
+                }
+                Destroy(cubo);
+            }
+        }
     }
 }

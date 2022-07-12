@@ -4,13 +4,21 @@ using UnityEngine;
 
 public class Cubo : MonoBehaviour
 {
-    public string tipo = "tierra";
+    public string tipo = "cobble";
+    public Chunk chunk;
+    public Vector3 posChunk;
     // Start is called before the first frame update
     void Start()
     {
         if(tipo == "aire"){
             foreach(Transform cara in transform){
                 cara.gameObject.SetActive(false);
+            }
+        }
+        else{
+            Material bloque = Resources.Load<Material>(tipo);
+            foreach(Transform cara in transform){
+                cara.gameObject.GetComponent<Renderer>().material = bloque;
             }
         }
     }
@@ -23,8 +31,11 @@ public class Cubo : MonoBehaviour
                 transform.GetChild(i).gameObject.SetActive(false);
                 n++;
             }
+            else{
+                transform.GetChild(i).gameObject.SetActive(true);
+            }
         }
-        if(n==cubos.Count) GetComponent<BoxCollider>().enabled = false;
+        GetComponent<BoxCollider>().enabled = n!=cubos.Count;
     }
 
     // Update is called once per frame
