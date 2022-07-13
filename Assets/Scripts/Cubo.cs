@@ -7,6 +7,7 @@ public class Cubo : MonoBehaviour
     public string tipo = "cobble";
     public Chunk chunk;
     public Vector3 posChunk;
+    public bool boxHit = false;
 
     // Start is called before the first frame update
     void Start()
@@ -23,7 +24,7 @@ public class Cubo : MonoBehaviour
             }
         }
     }
-
+    
     // La lista de cubos no deberia contener ningun hueco
     public void QuitarCaras(List<GameObject> cubos){ // arriba, abajo, izq, der, del, detr
         int n = 0;

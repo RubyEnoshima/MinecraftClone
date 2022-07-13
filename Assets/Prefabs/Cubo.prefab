@@ -436,6 +436,7 @@ MonoBehaviour:
   tipo: cobble
   chunk: {fileID: 0}
   posChunk: {x: 0, y: 0, z: 0}
+  boxHit: 0
 --- !u!1 &7508910489911600450
 GameObject:
   m_ObjectHideFlags: 0
