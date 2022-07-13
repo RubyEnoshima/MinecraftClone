@@ -18,7 +18,13 @@ public class PlayerController : MonoBehaviour
 
     Vector3 velocity; // gravedad
 
+    private Inventario inventario = new Inventario();
+    public int vida = 10;
+    public int vidaMax = 10;
+
     void Start() {
+        inventario.DebugInventario();
+        vida = vidaMax;
         if(!gravedadON) Gravedad = 0;
     }
 
@@ -60,7 +66,17 @@ public class PlayerController : MonoBehaviour
 
         RaycastHit hit;
 
-        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 7f))
+        bool numPresionado = false;
+        for(int i=1;i<=7;i++){
+            if(Input.GetKeyDown(i.ToString())){
+                inventario.CambiarSeleccionado(i-1);
+                Debug.Log("Cambiado");
+                numPresionado = true;
+                break;
+            }
+        }
+
+        if (!numPresionado && Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, 7f))
         {
             if(hit.transform.gameObject.name!="Player"){
 
@@ -80,11 +96,10 @@ public class PlayerController : MonoBehaviour
                     }
                     Destroy(cubo);
                 }
-                else if(Input.GetButtonDown("Fire2")){
+                else if(Input.GetButtonDown("Fire2") && inventario.ItemActual().tipo=="cubo"){
                     GameObject lado = hit.transform.gameObject;
                     Cubo cuboAct = lado.transform.parent.GetComponent<Cubo>();
                     Vector3 pos = cuboAct.posChunk;
-                    Debug.Log(lado);
                     Vector3 posNueva;
                     switch(lado.name){
                         case "Arriba":
@@ -117,19 +132,24 @@ public class PlayerController : MonoBehaviour
                     if(!CompruebaPos(cuboIns)){
                         cuboIns.transform.parent = chunkNuevo.transform;
                         cuboIns.name = "Cubo"+z.ToString()+y.ToString()+x.ToString();
-                        cuboIns.GetComponent<Cubo>().chunk = chunkNuevo;
-                        cuboIns.GetComponent<Cubo>().posChunk = posNueva;
+                        Cubo cuboNuevo = cuboIns.GetComponent<Cubo>();
+                        cuboNuevo.chunk = chunkNuevo;
+                        cuboNuevo.posChunk = posNueva;
+                        cuboNuevo.CambiaTipo(inventario.ItemActual().tipoCubo);
                         chunkNuevo.chunk[z,y,x] = cuboIns;
                         
                         // Escondemos las caras no visibles
                         List<GameObject> vecinos = cuboAct.chunk.ObtenerVecinos(z,y,x);
-                        cuboIns.GetComponent<Cubo>().QuitarCaras(vecinos);
+                        cuboNuevo.QuitarCaras(vecinos);
                         foreach(var vecino in vecinos){
                             if(vecino!=null){
                                 Cubo cuboVecino = vecino.GetComponent<Cubo>();
                                 cuboVecino.QuitarCaras(cuboVecino.chunk.ObtenerVecinos(cuboVecino.posChunk));
                             }
                         }
+                        cuboAct.QuitarCaras(lado.name);
+
+                        inventario.Usar();
                     }
                     else{
                         Destroy(cuboIns);

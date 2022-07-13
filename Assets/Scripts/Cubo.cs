@@ -18,10 +18,23 @@ public class Cubo : MonoBehaviour
             }
         }
         else{
-            Material bloque = Resources.Load<Material>(tipo);
-            foreach(Transform cara in transform){
-                cara.gameObject.GetComponent<Renderer>().material = bloque;
-            }
+            CambiaVisual();
+        }
+    }
+
+    public void CambiaTipo(string _tipo){
+        if(tipo!=_tipo){
+            tipo = _tipo;
+            CambiaVisual();
+
+        }
+    }
+
+    // Cambia cómo se ve el bloque según el tipo asignado
+    void CambiaVisual(){
+        Material bloque = Resources.Load<Material>(tipo);
+        foreach(Transform cara in transform){
+            cara.gameObject.GetComponent<Renderer>().material = bloque;
         }
     }
     
@@ -41,9 +54,10 @@ public class Cubo : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+    public void QuitarCaras(string cara){
+        GameObject caraQuitar = transform.Find(cara).gameObject;
+        caraQuitar.SetActive(false);
+        caraQuitar.GetComponent<MeshCollider>().enabled = false;
+
     }
 }
