@@ -53,4 +53,8 @@ public class Inventario
 
         }
     }
+
+    public void AddItem(Item item){
+        
+    }
 }

@@ -216,6 +216,59 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &843910298
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 843910300}
+  - component: {fileID: 843910299}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &843910299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 843910298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9a2af5245684d54396dfe8bc9ee57ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ChunkPrefab: {fileID: 4498651511737227324, guid: 00e8074b4fc5b954f8730c53b2234703, type: 3}
+  Cubo: {fileID: 7439590455134994172, guid: a32c89639d359984e8c882b75103d2b7, type: 3}
+  ChunkSize: 16
+  Seed: 
+  PerlinScale: 100
+  PerlinOctaves: 5
+  persistence: 2
+  lacunarity: 2
+  PerlinBaseAmplitude: 1
+  ActiveChunks: []
+--- !u!4 &843910300
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 843910298}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3.9247863, y: 6.74811, z: 8.09632}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -387,8 +440,10 @@ MonoBehaviour:
     m_Bits: 64
   speed: 6
   Gravedad: -19.62
-  gravedadON: 1
+  gravedadON: 0
   jumpHeight: 2
+  vida: 10
+  vidaMax: 10
 --- !u!1 &1628677823
 GameObject:
   m_ObjectHideFlags: 0
