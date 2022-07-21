@@ -7,11 +7,18 @@ public class Cubo : MonoBehaviour
     public string tipo = "cobble";
     public Chunk chunk;
     public Vector3 posChunk;
-    public bool boxHit = false;
+    static Material resalte;
+
+    bool resaltado = false;
+
+    void Awake() {
+        resalte = Resources.Load<Material>("destacar");
+    }
 
     // Start is called before the first frame update
     void Start()
     {
+        // NoResaltar();
         if(tipo == "aire"){
             foreach(Transform cara in transform){
                 cara.gameObject.SetActive(false);
@@ -19,6 +26,28 @@ public class Cubo : MonoBehaviour
         }
         else{
             CambiaVisual();
+        }
+    }
+
+    public void Resaltar(){
+        if(!resaltado){
+            foreach(Transform cara in transform){
+                Material[] matArray = cara.gameObject.GetComponent<Renderer>().materials;
+                matArray[1] = resalte;
+                cara.gameObject.GetComponent<Renderer>().materials = matArray;
+            }
+            resaltado = true;
+        }
+    }
+
+    public void NoResaltar(){
+        if(resaltado){
+            resaltado = false;
+            foreach(Transform cara in transform){
+                Material[] matArray = cara.gameObject.GetComponent<Renderer>().materials;
+                matArray[1] = null;
+                cara.gameObject.GetComponent<Renderer>().materials = matArray;
+            }
         }
     }
 

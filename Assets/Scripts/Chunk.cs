@@ -7,12 +7,13 @@ public class Chunk : MonoBehaviour
 {
     public GameObject cubo;
     public Vector3 Position;
+    public Vector2 PosWorld;
 
     public int maxWidth = 16;
     public int maxHeight = 16;
     public int maxProfundidad = 125;
-    public int width = 5;
-    public int height = 3;
+    const int width = 16;
+    const int height = 16;
     public int profundidad = 1;
     public float[,] Sample;
 
@@ -60,6 +61,7 @@ public class Chunk : MonoBehaviour
         }
     }
 
+    // Genera un chunk plano sin relieve ninguno, del height, width y profundidad del chunk
     public void ChunkLineal(){
         int zIni = (int)Position.z;
         int yIni = (int)Position.y;
@@ -83,6 +85,10 @@ public class Chunk : MonoBehaviour
         
     }
 
+    public bool PosValida(Vector3 pos){
+        return pos.x>=0 && pos.x<width && pos.y>=0 && pos.y<height && pos.z>=0 && pos.z<profundidad;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -96,28 +102,5 @@ public class Chunk : MonoBehaviour
     void Update()
     {
         
-    }
-
-    //===============
-    // Get Cell Position in the world
-    //===============
-    public Vector2 CellPosition(int x, int y){
-        return new Vector2((int)(ChunkWorldPosition.x - maxHeight/2f) + x, (int)(ChunkWorldPosition.y - maxHeight/2f) + y);
-    }
- 
-    //===============
-    // Get Vector Position in the world 
-    //===============
-    public Vector2 VectorCellPosition(int x, int y){
-        return new Vector2((int)(ChunkWorldPosition.x - maxHeight/2f) + x, (int)(ChunkWorldPosition.y - maxHeight/2f) + y);
-    }
- 
-    //===============
-    // Used get Chunk World Position (instead of (-1, 0) would be (-maxHeight, 0)) used for Graphical Offsets
-    //===============
-    public Vector2 ChunkWorldPosition{
-        get{
-            return new Vector2(Position.x * maxHeight, Position.y * maxHeight);
-        }
     }
 }

@@ -8,11 +8,12 @@ public class World : MonoBehaviour
 {
     public GameObject ChunkPrefab;
     public GameObject Cubo;
+    public float DistanciaRenderizado = 12f;
     // Pseudo Random Number Generator
     private System.Random pseudoRandom;
 
-    // Chunk Data Split into Sections (Each Chunk having Coords (x, y))
-    public Dictionary<string, Chunk> chunks = new Dictionary<string, Chunk>();
+    // Chunks guardados
+    public Dictionary<Vector2, Chunk> Chunks = new Dictionary<Vector2, Chunk>();
     public List<Chunk> ActiveChunks = new List<Chunk>();
 
 
@@ -48,8 +49,8 @@ public class World : MonoBehaviour
         //         ActiveChunks.Add(c);
         //     }
         // }
-        int height = 16;
-        int width = 16;
+        const int height = 16;
+        const int width = 16;
         
         for (int x = -1*width; x <= 1*width; x+=width)
         {
@@ -57,10 +58,11 @@ public class World : MonoBehaviour
             {
                 GameObject nuevoChunk = Instantiate(ChunkPrefab,new Vector3(x,0,y),Quaternion.identity);
                 Chunk c = nuevoChunk.GetComponent<Chunk>();
-                c.height = height;
-                c.width = width;
                 c.ChunkLineal();
+                c.PosWorld = new Vector2(x/width,y/height);
                 nuevoChunk.transform.position = Vector3.zero;
+                ActiveChunks.Add(c);
+                Chunks.Add(c.PosWorld,c);
             }
         }
     }
