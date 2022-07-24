@@ -5,60 +5,91 @@ using UnityEngine;
 
 public class Chunk : MonoBehaviour
 {
+    public World World;
     public GameObject cubo;
     public Vector3 Position;
     public Vector2 PosWorld;
 
     public int maxWidth = 16;
-    public int maxHeight = 16;
-    public int maxProfundidad = 125;
+    public int maxHeight = 125;
+    public int maxProfundidad = 16;
     const int width = 16;
-    const int height = 16;
-    public int profundidad = 1;
-    public float[,] Sample;
+    const int height = 2;
+    const int profundidad = 16;
 
     public GameObject[,,] chunk;
-    // List<List<List<GameObject>>> chunk;
 
     void Awake(){
         chunk = new GameObject[maxProfundidad, maxHeight, maxWidth];
-        Sample = new float[maxHeight+1, maxHeight+1];
+        chunk.Initialize();
     }
 
     // Devuelve una lista de vecinos de la coordenada dada.
-    // La lista no puede obtener huecos, y siempre tiene el mismo orden: arriba, abajo, izq, der, del, detr
-    public List<GameObject> ObtenerVecinos(int z, int y, int x){
+    public List<GameObject> ObtenerVecinos(int x, int y, int z){
         List<GameObject> res = new List<GameObject>();
-        if(z+1<profundidad) res.Add(chunk[z+1,y,x]);
-        else res.Add(null);
-        if(z-1>=0) res.Add(chunk[z-1,y,x]);
-        else res.Add(null);
-        if(y-1>=0) res.Add(chunk[z,y-1,x]);
-        else res.Add(null);
-        if(y+1<height) res.Add(chunk[z,y+1,x]);
-        else res.Add(null);
-        if(x+1<width) res.Add(chunk[z,y,x+1]);
-        else res.Add(null);
-        if(x-1>=0) res.Add(chunk[z,y,x-1]);
-        else res.Add(null);
+        for(int i=-1;i<=1;i+=2){
+
+            if(x+i>=0 && x+i<width)res.Add(chunk[x+i,y,z]);
+            else{
+                if(x+i<0){ // Si es una x negativa, es que estamos en el chunk anterior
+                    // Por tanto añadimos el cubo anterior, que es el del chunk vecino, el ultimo de todos (15, width-1)
+                    Vector2 vecino = new Vector2(PosWorld.x-1,PosWorld.y);
+                    if(World.ActiveChunks.ContainsKey(vecino))
+                        res.Add(World.ActiveChunks[vecino].chunk[width-1,y,z]);
+                    else res.Add(null);
+                }else{
+                    Vector2 vecino = new Vector2(PosWorld.x+1,PosWorld.y);
+                    if(World.ActiveChunks.ContainsKey(vecino))
+                        res.Add(World.ActiveChunks[vecino].chunk[0,y,z]);
+                    else res.Add(null);
+                }
+            }
+
+            if(y+i>=0 && y+i<maxHeight)res.Add(chunk[x,y+i,z]);
+            else res.Add(null);
+
+            if(z+i>=0 && z+i<profundidad)res.Add(chunk[x,y,z+i]);
+            else {
+                if(z+i<0){
+                    Vector2 vecino = new Vector2(PosWorld.x,PosWorld.y-1);
+                    if(World.ActiveChunks.ContainsKey(vecino))
+                        res.Add(World.ActiveChunks[vecino].chunk[x,y,profundidad-1]);
+                    else res.Add(null); 
+                }else{
+                    Vector2 vecino = new Vector2(PosWorld.x,PosWorld.y+1);
+                    if(World.ActiveChunks.ContainsKey(vecino))
+                        res.Add(World.ActiveChunks[vecino].chunk[x,y,0]);
+                    else res.Add(null);
+                }
+            }
+        }
         return res;
     }
 
     public List<GameObject> ObtenerVecinos(Vector3 pos){
-        int z = (int)pos.x;
+        int z = (int)pos.z;
         int y = (int)pos.y;
-        int x = (int)pos.z;
-        return ObtenerVecinos(z,y,x);
+        int x = (int)pos.x;
+        return ObtenerVecinos(x,y,z);
     }
 
-    void QuitarCaras(){
+    public void QuitarCaras(){
         for(int z=0;z<profundidad;z++){
             for(int y=0;y<height;y++){
                 for(int x=0;x<width;x++){
-                    chunk[z,y,x].GetComponent<Cubo>().QuitarCaras(ObtenerVecinos(z,y,x));
+                    chunk[x,y,z].GetComponent<Cubo>().QuitarCaras(ObtenerVecinos(x,y,z));
                 }
             }
         }
+    }
+
+    GameObject GenerarCubo(int x,int y,int z,int xIni,int yIni,int zIni){
+        GameObject cuboIns = Instantiate(cubo,new Vector3(x+xIni, y+yIni, z+zIni), Quaternion.identity);
+        cuboIns.transform.parent = this.transform;
+        cuboIns.name = "Cubo"+x.ToString()+y.ToString()+z.ToString();
+        cuboIns.GetComponent<Cubo>().chunk = this;
+        cuboIns.GetComponent<Cubo>().posChunk = new Vector3(x,y,z);
+        return cuboIns;
     }
 
     // Genera un chunk plano sin relieve ninguno, del height, width y profundidad del chunk
@@ -69,13 +100,7 @@ public class Chunk : MonoBehaviour
         for(int z=0;z<profundidad;z++){
             for(int y=0;y<height;y++){
                 for(int x=0;x<width;x++){
-                    GameObject cuboIns = Instantiate(cubo,new Vector3(x+xIni, z+zIni, y+yIni), Quaternion.identity);
-                    cuboIns.transform.parent = this.transform;
-                    cuboIns.name = "Cubo"+z.ToString()+y.ToString()+x.ToString();
-                    cuboIns.GetComponent<Cubo>().chunk = this;
-                    cuboIns.GetComponent<Cubo>().posChunk = new Vector3(z,y,x);
-                    cuboIns.GetComponent<Cubo>().QuitarCaras(ObtenerVecinos(z,y,x));
-                    chunk[z,y,x] = cuboIns;
+                    chunk[x,y,z] = GenerarCubo(x,y,z,xIni,yIni,zIni);;
                 }
             }
         }
@@ -93,9 +118,6 @@ public class Chunk : MonoBehaviour
     void Start()
     {
         Position = transform.position;
-        // ChunkLineal();
-        //ChunkNoise();
-        // QuitarCaras();
     }
 
     // Update is called once per frame

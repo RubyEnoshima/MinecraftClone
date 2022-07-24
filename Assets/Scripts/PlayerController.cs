@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public World World;
     public CharacterController controller;
     public Transform groundCheck;
     public float groundDistance = 0.4f;
@@ -116,70 +117,98 @@ public class PlayerController : MonoBehaviour
                 else if(Input.GetButtonDown("Fire2") && inventario.ItemActual().tipo=="cubo"){
                     GameObject lado = hit.transform.gameObject;
                     cuboAct = lado.transform.parent.GetComponent<Cubo>();
-                    Vector3 pos = cuboAct.transform.position;
-                    Vector3 posChunk = cuboAct.posChunk;
-                    Vector3 posNueva = new Vector3(Mathf.RoundToInt(hit.point.x),hit.point.y,Mathf.RoundToInt(hit.point.z));
-                    Vector3 posChunkNueva;
-                    Debug.Log(posNueva+", el cubo clicado está en "+posChunk);
+
+                    // Posiciones del cubo que estamos mirando
+                    Vector3 pos = cuboAct.transform.position; // en el mundo
+                    Vector3 posChunk = cuboAct.posChunk; // en el chunk
+
+                    // Nuevas posiciones para el cubo nuevo
+                    Vector3 posNueva = pos;//new Vector3(Mathf.RoundToInt(hit.point.x),Mathf.FloorToInt(hit.point.y),Mathf.RoundToInt(hit.point.z));
+                    Vector3 posChunkNueva = posChunk;
 
                     // bool comprobar = true;
 
                     switch(lado.name){
                         case "Arriba":
                             posChunkNueva = new Vector3(0,1,0)+ posChunk;
+                            posNueva.y++;
                             // comprobar = false;
                             break;
                         case "Abajo":
                             posChunkNueva = new Vector3(0,-1,0)+ posChunk;
+                            posNueva.y -= 1;
                             // comprobar = false;
                             break;
-                        // case "Izquierda":
-                        //     posNueva = new Vector3(0,-1,0)+ pos;
-                        //     break;
-                        // case "Derecha":
-                        //     posNueva = new Vector3(0,1,0)+ pos;
-                        //     break;
-                        // case "Delante":
-                        //     posNueva = new Vector3(0,0,1)+ pos;
-                        //     break;
-                        // case "Detras":
-                        //     posNueva = new Vector3(0,0,-1)+ pos;
-                        //     break;
-                        default:
-                            posChunkNueva = new Vector3(-1,-1,-1);
+                        case "Izquierda":
+                            posChunkNueva = new Vector3(0,0,-1)+ pos;
+                            posNueva.z -= 1;
+                            break;
+                        case "Derecha":
+                            posChunkNueva = new Vector3(0,0,1)+ pos;
+                            posNueva.z++;
+                            break;
+                        case "Delante":
+                            posChunkNueva = new Vector3(1,0,0)+ pos;
+                            posNueva.x++;
+                            break;
+                        case "Detras":
+                            posChunkNueva = new Vector3(-1,0,0)+ pos;
+                            posNueva.x -= 1;
                             break;
                     }
-
-                    // posNueva.x %= 16;
-                    // posNueva.z %= 16;
-
+                    
                     Chunk chunkNuevo = cuboAct.chunk;
-                    // Si no hay que comprobar nada (arriba/abajo) o la posicion esta guay
-                    // if(cuboAct.chunk.PosValida(posNueva)){
-                    //     chunkNuevo = cuboAct.chunk;
-                    // }else{
-                    //     chunkNuevo = null; // el nuevo chunk, hay que calcularlo somehow
-                    //     posNueva = posNueva; // nueva posicion dentro del nuevo chunk
-                    //     throw new System.Exception();
-                    // }
 
-                    int z = (int)posChunkNueva.x;
+                    // Comprobamos si hay que cambiar el chunk en el que se encuentra
+                    // Solo hay que mirar la x o la z, ya que la y siempre se encuentra en el mismo chunk
+                    if(posChunkNueva.x>=16){
+                        Vector2 vecino = new Vector2(chunkNuevo.PosWorld.x+1,chunkNuevo.PosWorld.y);
+                        if(World.ActiveChunks.ContainsKey(vecino))
+                            chunkNuevo = World.Chunks[vecino];
+                        posChunkNueva.x -= 16;
+                    }
+                    else if(posChunkNueva.x<0){
+                        Vector2 vecino = new Vector2(chunkNuevo.PosWorld.x-1,chunkNuevo.PosWorld.y);
+                        if(World.ActiveChunks.ContainsKey(vecino))
+                            chunkNuevo = World.Chunks[vecino];
+                        posChunkNueva.x += 16;
+
+                    }
+                       
+                    
+                    if(posChunkNueva.z>=16){
+                        Vector2 vecino = new Vector2(chunkNuevo.PosWorld.x,chunkNuevo.PosWorld.y+1);
+                        if(World.ActiveChunks.ContainsKey(vecino))
+                            chunkNuevo = World.Chunks[vecino];
+                        posChunkNueva.z -= 16;
+                    }
+                    else if(posChunkNueva.z<0){
+                        Vector2 vecino = new Vector2(chunkNuevo.PosWorld.x,chunkNuevo.PosWorld.y-1);
+                        if(World.ActiveChunks.ContainsKey(vecino))
+                            chunkNuevo = World.Chunks[vecino];
+                        posChunkNueva.z += 16;
+                    }
+
+
                     int y = (int)posChunkNueva.y;
-                    int x = (int)posChunkNueva.z;
+                    int z = (int)posChunkNueva.z;
+                    int x = (int)posChunkNueva.x;
+
+                    Debug.Log(posChunkNueva);
 
                     // Si el cubo no se encuentra donde el jugador, entonces lo ponemos
                     if(!CompruebaPos(posNueva)){
                         GameObject cuboIns = Instantiate(chunkNuevo.cubo,posNueva, Quaternion.identity);
                         cuboIns.transform.parent = chunkNuevo.transform;
-                        cuboIns.name = "Cubo"+z.ToString()+y.ToString()+x.ToString();
+                        cuboIns.name = "Cubo"+x.ToString()+y.ToString()+z.ToString();
                         Cubo cuboNuevo = cuboIns.GetComponent<Cubo>();
                         cuboNuevo.chunk = chunkNuevo;
-                        cuboNuevo.posChunk = new Vector3(z,y,x);
+                        cuboNuevo.posChunk = new Vector3(x,y,z);
                         cuboNuevo.CambiaTipo(inventario.ItemActual().tipoCubo);
-                        chunkNuevo.chunk[z,y,x] = cuboIns;
+                        chunkNuevo.chunk[x,y,z] = cuboIns;
                         
                         // Escondemos las caras no visibles
-                        List<GameObject> vecinos = cuboAct.chunk.ObtenerVecinos(z,y,x);
+                        List<GameObject> vecinos = cuboAct.chunk.ObtenerVecinos(x,y,z);
                         cuboNuevo.QuitarCaras(vecinos);
                         foreach(var vecino in vecinos){
                             if(vecino!=null){
@@ -188,6 +217,8 @@ public class PlayerController : MonoBehaviour
                             }
                         }
                         cuboAct.QuitarCaras(lado.name);
+
+                        Debug.Log("Cubo colocado en "+posChunkNueva+" en el chunk "+chunkNuevo.PosWorld);
 
                         inventario.Usar();
                     }

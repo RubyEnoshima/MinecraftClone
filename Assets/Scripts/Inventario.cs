@@ -23,7 +23,7 @@ public class Inventario
     public void DebugInventario(){
         Item cobble = new Item();
         cobble.nombre = "Cobblestone";
-        cobble.cantidad = 1;
+        cobble.cantidad = MAX;
         cobble.tipo = "cubo";
         cobble.tipoCubo = "cobble";
         Objetos.Add(cobble);

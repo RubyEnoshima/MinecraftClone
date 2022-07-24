@@ -13,9 +13,10 @@ public class World : MonoBehaviour
     private System.Random pseudoRandom;
 
     // Chunks guardados
-    public Dictionary<Vector2, Chunk> Chunks = new Dictionary<Vector2, Chunk>();
-    public List<Chunk> ActiveChunks = new List<Chunk>();
-
+    // Absolutamente todos los chunks
+    public Dictionary<Vector2, Chunk> Chunks = new Dictionary<Vector2, Chunk>(); 
+    // Solo los activos
+    public Dictionary<Vector2, Chunk> ActiveChunks = new Dictionary<Vector2, Chunk>();
 
     //============================================================
     // Set Warm-Up Data
@@ -60,11 +61,16 @@ public class World : MonoBehaviour
                 Chunk c = nuevoChunk.GetComponent<Chunk>();
                 c.ChunkLineal();
                 c.PosWorld = new Vector2(x/width,y/height);
+                c.World = this;
                 nuevoChunk.transform.position = Vector3.zero;
-                ActiveChunks.Add(c);
+                ActiveChunks.Add(c.PosWorld,c);
                 Chunks.Add(c.PosWorld,c);
             }
         }
+        foreach(KeyValuePair<Vector2,Chunk> c in ActiveChunks){
+            c.Value.QuitarCaras();
+        }
+
     }
 
     private void Update() {
