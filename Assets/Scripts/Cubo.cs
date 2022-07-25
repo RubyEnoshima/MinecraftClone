@@ -66,21 +66,65 @@ public class Cubo : MonoBehaviour
             cara.gameObject.GetComponent<Renderer>().material = bloque;
         }
     }
+
+    // Detras x-, Abajo y-, Izq z-
+
+    public void QuitarLado(int i){
+        transform.GetChild(i).gameObject.SetActive(false);
+        transform.GetChild(i).gameObject.GetComponent<MeshCollider>().enabled = false;
+    }
+
+    public void MostrarLado(int i){
+        transform.GetChild(i).gameObject.SetActive(true);
+        transform.GetChild(i).gameObject.GetComponent<MeshCollider>().enabled = true;
+    }
     
     // La lista de cubos no deberia contener ningun hueco
-    public void QuitarCaras(List<GameObject> cubos){ // arriba, abajo, izq, der, del, detr
+    public void QuitarCaras(List<GameObject> cubos){
         for(int i=0;i<cubos.Count;i++){
             if(cubos[i]!=null && cubos[i].GetComponent<Cubo>().tipo != "aire"){
-                transform.GetChild(i).gameObject.SetActive(false);
-                transform.GetChild(i).gameObject.GetComponent<MeshCollider>().enabled = false;
+                QuitarLado(i);
             }
             else{
-                transform.GetChild(i).gameObject.SetActive(true);
-                transform.GetChild(i).gameObject.GetComponent<MeshCollider>().enabled = true;
+                MostrarLado(i);
             }
         }
     }
 
+    // Usamos estas funciones para mostrar o quitar una unica cara dependiendo de la posicion del cubo
+    public void QuitarCara(Cubo cubo){
+        if(cubo.transform.position.x < transform.position.x){
+            QuitarLado(0);
+        }else if(cubo.transform.position.y < transform.position.y){
+            QuitarLado(1);
+        }else if(cubo.transform.position.z < transform.position.z){
+            QuitarLado(2);
+        }else if(cubo.transform.position.x > transform.position.x){
+            QuitarLado(3);
+        }else if(cubo.transform.position.y > transform.position.y){
+            QuitarLado(4);
+        }else if(cubo.transform.position.z > transform.position.z){
+            QuitarLado(5);
+        }
+    }
+
+    public void MostrarCara(Cubo cubo){
+        if(cubo.transform.position.x < transform.position.x){
+            MostrarLado(0);
+        }else if(cubo.transform.position.y < transform.position.y){
+            MostrarLado(1);
+        }else if(cubo.transform.position.z < transform.position.z){
+            MostrarLado(2);
+        }else if(cubo.transform.position.x > transform.position.x){
+            MostrarLado(3);
+        }else if(cubo.transform.position.y > transform.position.y){
+            MostrarLado(4);
+        }else if(cubo.transform.position.z > transform.position.z){
+            MostrarLado(5);
+        }
+    }
+
+    // Para cuando queremos quitar una cara sabiendo el nombre de la cara que hay que quitar
     public void QuitarCaras(string cara){
         GameObject caraQuitar = transform.Find(cara).gameObject;
         caraQuitar.SetActive(false);

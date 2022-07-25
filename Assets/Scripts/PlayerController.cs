@@ -108,7 +108,7 @@ public class PlayerController : MonoBehaviour
                     foreach(var vecino in vecinos){
                         if(vecino!=null){
                             Cubo cuboVecino = vecino.GetComponent<Cubo>();
-                            cuboVecino.QuitarCaras(cuboVecino.chunk.ObtenerVecinos(cuboVecino.posChunk));
+                            cuboVecino.MostrarCara(cuboAct); // Queremos mostrar una unica cara
 
                         }
                     }
@@ -123,21 +123,17 @@ public class PlayerController : MonoBehaviour
                     Vector3 posChunk = cuboAct.posChunk; // en el chunk
 
                     // Nuevas posiciones para el cubo nuevo
-                    Vector3 posNueva = pos;//new Vector3(Mathf.RoundToInt(hit.point.x),Mathf.FloorToInt(hit.point.y),Mathf.RoundToInt(hit.point.z));
+                    Vector3 posNueva = pos;
                     Vector3 posChunkNueva = posChunk;
-
-                    // bool comprobar = true;
 
                     switch(lado.name){
                         case "Arriba":
                             posChunkNueva = new Vector3(0,1,0)+ posChunk;
                             posNueva.y++;
-                            // comprobar = false;
                             break;
                         case "Abajo":
                             posChunkNueva = new Vector3(0,-1,0)+ posChunk;
                             posNueva.y -= 1;
-                            // comprobar = false;
                             break;
                         case "Izquierda":
                             posChunkNueva = new Vector3(0,0,-1)+ pos;
@@ -161,6 +157,7 @@ public class PlayerController : MonoBehaviour
 
                     // Comprobamos si hay que cambiar el chunk en el que se encuentra
                     // Solo hay que mirar la x o la z, ya que la y siempre se encuentra en el mismo chunk
+                    // NOTA: he puesto 16 pero debería poner width/profundidad para ser consistente!!!
                     if(posChunkNueva.x>=16){
                         Vector2 vecino = new Vector2(chunkNuevo.PosWorld.x+1,chunkNuevo.PosWorld.y);
                         if(World.ActiveChunks.ContainsKey(vecino))
@@ -189,7 +186,6 @@ public class PlayerController : MonoBehaviour
                         posChunkNueva.z += 16;
                     }
 
-
                     int y = (int)posChunkNueva.y;
                     int z = (int)posChunkNueva.z;
                     int x = (int)posChunkNueva.x;
@@ -213,7 +209,7 @@ public class PlayerController : MonoBehaviour
                         foreach(var vecino in vecinos){
                             if(vecino!=null){
                                 Cubo cuboVecino = vecino.GetComponent<Cubo>();
-                                cuboVecino.QuitarCaras(cuboVecino.chunk.ObtenerVecinos(cuboVecino.posChunk));
+                                cuboVecino.QuitarCara(cuboNuevo); // Solo queremos quitar una cara
                             }
                         }
                         cuboAct.QuitarCaras(lado.name);
