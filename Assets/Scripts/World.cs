@@ -21,7 +21,7 @@ public class World : MonoBehaviour
     //============================================================
     // Set Warm-Up Data
     //============================================================
-    private void Awake() {
+    private void Start() {
         // Get/Create Seed
         // if (Seed == ""){
         //     Seed = GenerateRandomSeed();
@@ -57,10 +57,11 @@ public class World : MonoBehaviour
         {
             for (int y = -1*height; y <= 1*height; y+=height)
             {
-                GameObject nuevoChunk = Instantiate(ChunkPrefab,new Vector3(x,0,y),Quaternion.identity);
+                GameObject nuevoChunk = Instantiate(ChunkPrefab,new Vector3(-x,0,-y),Quaternion.identity);
                 Chunk c = nuevoChunk.GetComponent<Chunk>();
                 c.ChunkLineal();
                 c.PosWorld = new Vector2(x/width,y/height);
+                nuevoChunk.name = "Chunk"+c.PosWorld.ToString();
                 c.World = this;
                 nuevoChunk.transform.position = Vector3.zero;
                 ActiveChunks.Add(c.PosWorld,c);

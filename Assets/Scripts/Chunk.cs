@@ -20,13 +20,16 @@ public class Chunk : MonoBehaviour
     public GameObject[,,] chunk;
 
     void Awake(){
-        chunk = new GameObject[maxProfundidad, maxHeight, maxWidth];
+        chunk = new GameObject[maxWidth, maxHeight, maxProfundidad];
         chunk.Initialize();
     }
 
     // Devuelve una lista de vecinos de la coordenada dada.
     public List<GameObject> ObtenerVecinos(int x, int y, int z){
         List<GameObject> res = new List<GameObject>();
+        // GameObject cuboAire = new GameObject("temp");
+        // cuboAire.AddComponent<Cubo>();
+        // cuboAire.GetComponent<Cubo>().tipo = "aire";
         for(int i=-1;i<=1;i+=2){
 
             if(x+i>=0 && x+i<width)res.Add(chunk[x+i,y,z]);
@@ -51,7 +54,9 @@ public class Chunk : MonoBehaviour
             if(z+i>=0 && z+i<profundidad)res.Add(chunk[x,y,z+i]);
             else {
                 if(z+i<0){
+
                     Vector2 vecino = new Vector2(PosWorld.x,PosWorld.y-1);
+                    Debug.Log("z "+World.ActiveChunks.ContainsKey(vecino));
                     if(World.ActiveChunks.ContainsKey(vecino))
                         res.Add(World.ActiveChunks[vecino].chunk[x,y,profundidad-1]);
                     else res.Add(null); 
@@ -77,18 +82,20 @@ public class Chunk : MonoBehaviour
         for(int z=0;z<profundidad;z++){
             for(int y=0;y<height;y++){
                 for(int x=0;x<width;x++){
-                    chunk[x,y,z].GetComponent<Cubo>().QuitarCaras(ObtenerVecinos(x,y,z));
+                    chunk[x,y,z].GetComponent<Cubo>().StartQuitarCaras(ObtenerVecinos(x,y,z));
                 }
             }
         }
     }
 
-    GameObject GenerarCubo(int x,int y,int z,int xIni,int yIni,int zIni){
+    GameObject GenerarCubo(int x,int y,int z,int xIni,int yIni,int zIni,string tipo = "cobble"){
         GameObject cuboIns = Instantiate(cubo,new Vector3(x+xIni, y+yIni, z+zIni), Quaternion.identity);
         cuboIns.transform.parent = this.transform;
-        cuboIns.name = "Cubo"+x.ToString()+y.ToString()+z.ToString();
-        cuboIns.GetComponent<Cubo>().chunk = this;
-        cuboIns.GetComponent<Cubo>().posChunk = new Vector3(x,y,z);
+        Cubo cuboComp = cuboIns.GetComponent<Cubo>();
+        cuboComp.chunk = this;
+        cuboComp.posChunk = new Vector3(x,y,z);
+        cuboIns.name = "Cubo"+cuboComp.posChunk.ToString();
+        cuboComp.tipo = tipo;
         return cuboIns;
     }
 
@@ -100,10 +107,17 @@ public class Chunk : MonoBehaviour
         for(int z=0;z<profundidad;z++){
             for(int y=0;y<height;y++){
                 for(int x=0;x<width;x++){
-                    chunk[x,y,z] = GenerarCubo(x,y,z,xIni,yIni,zIni);;
+                    chunk[x,y,z] = GenerarCubo(x,y,z,xIni,yIni,zIni);
                 }
             }
         }
+        // for(int z=0;z<profundidad;z++){
+        //     for(int y=height;y<maxHeight;y++){
+        //         for(int x=0;x<width;x++){
+        //             chunk[x,y,z] = GenerarCubo(x,y,z,xIni,yIni,zIni,"aire");
+        //         }
+        //     }
+        // }
     }
 
     public void ChunkNoise(GameObject Cubo){

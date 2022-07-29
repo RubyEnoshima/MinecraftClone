@@ -11,8 +11,10 @@ public class Cubo : MonoBehaviour
 
     bool resaltado = false;
 
+    int nVisibles;
     void Awake() {
         resalte = Resources.Load<Material>("destacar");
+        nVisibles = transform.childCount;
     }
 
     // Start is called before the first frame update
@@ -20,12 +22,16 @@ public class Cubo : MonoBehaviour
     {
         // NoResaltar();
         if(tipo == "aire"){
-            foreach(Transform cara in transform){
-                cara.gameObject.SetActive(false);
-            }
+            Deshabilitar();
         }
         else{
             CambiaVisual();
+        }
+    }
+
+    public void Deshabilitar(){
+        for(int i=0;i<transform.childCount;i++){
+            QuitarLado(i);
         }
     }
 
@@ -53,9 +59,9 @@ public class Cubo : MonoBehaviour
 
     public void CambiaTipo(string _tipo){
         if(tipo!=_tipo){
+            if(_tipo=="aire") Deshabilitar();
             tipo = _tipo;
             CambiaVisual();
-
         }
     }
 
@@ -70,23 +76,46 @@ public class Cubo : MonoBehaviour
     // Detras x-, Abajo y-, Izq z-
 
     public void QuitarLado(int i){
-        transform.GetChild(i).gameObject.SetActive(false);
-        transform.GetChild(i).gameObject.GetComponent<MeshCollider>().enabled = false;
+        GameObject child = transform.GetChild(i).gameObject;
+        if(nVisibles>0 && child.activeSelf){
+            child.SetActive(false);
+            child.GetComponent<MeshCollider>().enabled = false;
+            nVisibles--;
+            if(nVisibles==0) this.gameObject.SetActive(false);
+        }
     }
 
     public void MostrarLado(int i){
-        transform.GetChild(i).gameObject.SetActive(true);
-        transform.GetChild(i).gameObject.GetComponent<MeshCollider>().enabled = true;
+        GameObject child = transform.GetChild(i).gameObject;
+        if(!child.activeSelf){
+            child.SetActive(true);
+            child.GetComponent<MeshCollider>().enabled = true;
+            nVisibles++;
+            if(nVisibles>0) this.gameObject.SetActive(true);
+
+        }
+    }
+
+    public void StartQuitarCaras(List<GameObject> cubos){
+        for(int i=0;i<cubos.Count;i++){
+            if(cubos[i]!=null && cubos[i].GetComponent<Cubo>().tipo != "aire"){
+                // QuitarCara(cubos[i]);
+                QuitarLado(i);
+            }
+        }
     }
     
     // La lista de cubos no deberia contener ningun hueco
     public void QuitarCaras(List<GameObject> cubos){
         for(int i=0;i<cubos.Count;i++){
-            if(cubos[i]!=null && cubos[i].GetComponent<Cubo>().tipo != "aire"){
-                QuitarLado(i);
+            if(cubos[i]==null) QuitarLado(i);
+            else if(cubos[i].GetComponent<Cubo>().tipo != "aire"){
+                // QuitarLado(i);
+                QuitarCara(cubos[i]);
             }
             else{
-                MostrarLado(i);
+                // MostrarLado(i);
+                MostrarCara(cubos[i]);
             }
         }
     }
@@ -98,6 +127,23 @@ public class Cubo : MonoBehaviour
         }else if(cubo.transform.position.y < transform.position.y){
             QuitarLado(1);
         }else if(cubo.transform.position.z < transform.position.z){
+            QuitarLado(2);
+        }else if(cubo.transform.position.x > transform.position.x){
+            QuitarLado(3);
+        }else if(cubo.transform.position.y > transform.position.y){
+            QuitarLado(4);
+        }else if(cubo.transform.position.z > transform.position.z){
+            QuitarLado(5);
+        }
+    }
+
+    public void QuitarCara(GameObject cubo){
+        if(cubo.transform.position.x < transform.position.x){
+            QuitarLado(0);
+        }else if(cubo.transform.position.y < transform.position.y){
+            QuitarLado(1);
+        }else if(cubo.transform.position.z < transform.position.z){
+
             QuitarLado(2);
         }else if(cubo.transform.position.x > transform.position.x){
             QuitarLado(3);
@@ -124,11 +170,30 @@ public class Cubo : MonoBehaviour
         }
     }
 
+    public void MostrarCara(GameObject cubo){
+        if(cubo.transform.position.x < transform.position.x){
+            MostrarLado(0);
+        }else if(cubo.transform.position.y < transform.position.y){
+            MostrarLado(1);
+        }else if(cubo.transform.position.z < transform.position.z){
+            MostrarLado(2);
+        }else if(cubo.transform.position.x > transform.position.x){
+            MostrarLado(3);
+        }else if(cubo.transform.position.y > transform.position.y){
+            MostrarLado(4);
+        }else if(cubo.transform.position.z > transform.position.z){
+            MostrarLado(5);
+        }
+    }
+
     // Para cuando queremos quitar una cara sabiendo el nombre de la cara que hay que quitar
     public void QuitarCaras(string cara){
         GameObject caraQuitar = transform.Find(cara).gameObject;
-        caraQuitar.SetActive(false);
-        caraQuitar.GetComponent<MeshCollider>().enabled = false;
-
+        if(caraQuitar.activeSelf){
+            caraQuitar.SetActive(false);
+            caraQuitar.GetComponent<MeshCollider>().enabled = false;
+            nVisibles--;
+            if(nVisibles==0) this.gameObject.SetActive(false);
+        }
     }
 }
