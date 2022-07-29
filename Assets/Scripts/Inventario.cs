@@ -17,9 +17,11 @@ public class Inventario
     }
     private List<Item> Objetos;
     private int seleccionado = 0;
+
     public Inventario() {
         Objetos = new List<Item>(7);
     }
+    
     public void DebugInventario(){
         Item cobble = new Item();
         cobble.nombre = "Cobblestone";

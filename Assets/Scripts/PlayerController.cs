@@ -4,24 +4,25 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public World World;
+    public World World; // Referencia al mundo (hacerlo estático...?)
     public CharacterController controller;
+
+    // Variables para el salto
     public Transform groundCheck;
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
-
     bool enSuelo;
 
+    // Variables de personaje
     public float speed = 12f;
     public float Gravedad = -19.62f;
     public bool gravedadON = true;
     public float jumpHeight = 3f;
-
     Vector3 velocity; // gravedad
-
-    private Inventario inventario = new Inventario();
     public int vida = 10;
     public int vidaMax = 10;
+
+    private Inventario inventario = new Inventario();
 
     Cubo ultimoCubo = null;
 
@@ -55,7 +56,7 @@ public class PlayerController : MonoBehaviour
 
     // True si está en el mismo sitio que el cubo
     // HAY QUE COMPROBAR MOBS!!!
-    bool CompruebaPos(Vector3 posCubo){
+        bool CompruebaPos(Vector3 posCubo){
         Vector3 pos = posCubo - transform.position;
         bool res = pos.x >= -0.5f && pos.x <= 0.5f &&
         pos.y >= -1.5f && pos.y <= 0.1f &&
@@ -70,6 +71,7 @@ public class PlayerController : MonoBehaviour
 
         RaycastHit hit;
 
+        // Input para cambiar el seleccionado en el inventario
         bool numPresionado = false;
         for(int i=1;i<=7;i++){
             if(Input.GetKeyDown(i.ToString())){
@@ -133,11 +135,11 @@ public class PlayerController : MonoBehaviour
                             break;
                         case "Abajo":
                             posChunkNueva = new Vector3(0,-1,0)+ posChunk;
-                            posNueva.y -= 1;
+                            posNueva.y--;
                             break;
                         case "Izquierda":
                             posChunkNueva = new Vector3(0,0,-1)+ pos;
-                            posNueva.z -= 1;
+                            posNueva.z--;
                             break;
                         case "Derecha":
                             posChunkNueva = new Vector3(0,0,1)+ pos;
@@ -149,7 +151,7 @@ public class PlayerController : MonoBehaviour
                             break;
                         case "Detras":
                             posChunkNueva = new Vector3(-1,0,0)+ pos;
-                            posNueva.x -= 1;
+                            posNueva.x--;
                             break;
                     }
                     
@@ -205,7 +207,7 @@ public class PlayerController : MonoBehaviour
                         
                         // Escondemos las caras no visibles
                         List<GameObject> vecinos = cuboAct.chunk.ObtenerVecinos(x,y,z);
-                        cuboNuevo.QuitarCaras(vecinos);
+                        cuboNuevo.StartQuitarCaras(vecinos);
                         foreach(var vecino in vecinos){
                             if(vecino!=null){
                                 Cubo cuboVecino = vecino.GetComponent<Cubo>();
