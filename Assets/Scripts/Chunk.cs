@@ -31,7 +31,6 @@ public class Chunk : MonoBehaviour
         // cuboAire.AddComponent<Cubo>();
         // cuboAire.GetComponent<Cubo>().tipo = "aire";
         for(int i=-1;i<=1;i+=2){
-
             if(x+i>=0 && x+i<width)res.Add(chunk[x+i,y,z]);
             else{
                 if(x+i<0){ // Si es una x negativa, es que estamos en el chunk anterior
@@ -56,7 +55,6 @@ public class Chunk : MonoBehaviour
                 if(z+i<0){
 
                     Vector2 vecino = new Vector2(PosWorld.x,PosWorld.y-1);
-                    Debug.Log("z "+World.ActiveChunks.ContainsKey(vecino));
                     if(World.ActiveChunks.ContainsKey(vecino))
                         res.Add(World.ActiveChunks[vecino].chunk[x,y,profundidad-1]);
                     else res.Add(null); 
@@ -88,26 +86,35 @@ public class Chunk : MonoBehaviour
         }
     }
 
-    GameObject GenerarCubo(int x,int y,int z,int xIni,int yIni,int zIni,string tipo = "cobble"){
-        GameObject cuboIns = Instantiate(cubo,new Vector3(x+xIni, y+yIni, z+zIni), Quaternion.identity);
+    public GameObject GenerarCubo(int x,int y,int z,string tipo = "cobble"){
+        GameObject cuboIns = Instantiate(cubo,new Vector3(x+(int)Position.x, y+(int)Position.y, z+(int)Position.z), Quaternion.identity);
         cuboIns.transform.parent = this.transform;
         Cubo cuboComp = cuboIns.GetComponent<Cubo>();
         cuboComp.chunk = this;
         cuboComp.posChunk = new Vector3(x,y,z);
         cuboIns.name = "Cubo"+cuboComp.posChunk.ToString();
-        cuboComp.tipo = tipo;
+        cuboComp.CambiaTipo(tipo);
+        return cuboIns;
+    }
+
+    public GameObject GenerarCubo(int x,int y,int z,Vector3 posChunkNueva,string tipo = "cobble"){
+        GameObject cuboIns = Instantiate(cubo,new Vector3(x+(int)Position.x, y+(int)Position.y, z+(int)Position.z), Quaternion.identity);
+        cuboIns.transform.parent = this.transform;
+        Cubo cuboComp = cuboIns.GetComponent<Cubo>();
+        cuboComp.chunk = this;
+        cuboComp.posChunk = posChunkNueva;
+        cuboIns.name = "Cubo"+cuboComp.posChunk.ToString();
+        cuboComp.CambiaTipo(tipo);
         return cuboIns;
     }
 
     // Genera un chunk plano sin relieve ninguno, del height, width y profundidad del chunk
     public void ChunkLineal(){
-        int zIni = (int)Position.z;
-        int yIni = (int)Position.y;
-        int xIni = (int)Position.x;
+        
         for(int z=0;z<profundidad;z++){
             for(int y=0;y<height;y++){
                 for(int x=0;x<width;x++){
-                    chunk[x,y,z] = GenerarCubo(x,y,z,xIni,yIni,zIni);
+                    chunk[x,y,z] = GenerarCubo(x,y,z,"tierra");
                 }
             }
         }

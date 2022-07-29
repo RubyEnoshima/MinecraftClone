@@ -5,16 +5,6 @@ using UnityEngine;
 public class Inventario
 {
     const int MAX = 64;
-    public class Item{
-        public string nombre = "";
-        public int cantidad = 0;
-        public string tipo = "";
-        public string tipoCubo = "";
-
-        public bool Vacio(){
-            return nombre=="";
-        }
-    }
     private List<Item> Objetos;
     private int seleccionado = 0;
 
@@ -23,18 +13,16 @@ public class Inventario
     }
     
     public void DebugInventario(){
-        Item cobble = new Item();
+        ItemCubo cobble = new ItemCubo("cobble");
         cobble.nombre = "Cobblestone";
         cobble.cantidad = MAX;
-        cobble.tipo = "cubo";
-        cobble.tipoCubo = "cobble";
         Objetos.Add(cobble);
-        Item tierra = new Item();
+        
+        ItemCubo tierra = new ItemCubo("tierra");
         tierra.nombre = "Tierra";
         tierra.cantidad = MAX;
-        tierra.tipo = "cubo";
-        tierra.tipoCubo = "tierra";
         Objetos.Add(tierra);
+        Debug.Log(Objetos.Count);
     }
 
     public Item ItemActual(){

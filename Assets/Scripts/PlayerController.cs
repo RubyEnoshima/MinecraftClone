@@ -138,19 +138,19 @@ public class PlayerController : MonoBehaviour
                             posNueva.y--;
                             break;
                         case "Izquierda":
-                            posChunkNueva = new Vector3(0,0,-1)+ pos;
+                            posChunkNueva = new Vector3(0,0,-1)+ posChunk;
                             posNueva.z--;
                             break;
                         case "Derecha":
-                            posChunkNueva = new Vector3(0,0,1)+ pos;
+                            posChunkNueva = new Vector3(0,0,1)+ posChunk;
                             posNueva.z++;
                             break;
                         case "Delante":
-                            posChunkNueva = new Vector3(1,0,0)+ pos;
+                            posChunkNueva = new Vector3(1,0,0)+ posChunk;
                             posNueva.x++;
                             break;
                         case "Detras":
-                            posChunkNueva = new Vector3(-1,0,0)+ pos;
+                            posChunkNueva = new Vector3(-1,0,0)+ posChunk;
                             posNueva.x--;
                             break;
                     }
@@ -188,25 +188,26 @@ public class PlayerController : MonoBehaviour
                         posChunkNueva.z += 16;
                     }
 
-                    int y = (int)posChunkNueva.y;
-                    int z = (int)posChunkNueva.z;
-                    int x = (int)posChunkNueva.x;
+                    int y = (int)posNueva.y;
+                    int z = (int)posNueva.z;
+                    int x = (int)posNueva.x;
 
                     Debug.Log(posChunkNueva);
 
                     // Si el cubo no se encuentra donde el jugador, entonces lo ponemos
                     if(!CompruebaPos(posNueva)){
-                        GameObject cuboIns = Instantiate(chunkNuevo.cubo,posNueva, Quaternion.identity);
-                        cuboIns.transform.parent = chunkNuevo.transform;
-                        cuboIns.name = "Cubo"+x.ToString()+y.ToString()+z.ToString();
-                        Cubo cuboNuevo = cuboIns.GetComponent<Cubo>();
-                        cuboNuevo.chunk = chunkNuevo;
-                        cuboNuevo.posChunk = new Vector3(x,y,z);
-                        cuboNuevo.CambiaTipo(inventario.ItemActual().tipoCubo);
-                        chunkNuevo.chunk[x,y,z] = cuboIns;
+                        // GameObject cuboIns = Instantiate(chunkNuevo.cubo,posNueva, Quaternion.identity);
+                        // cuboIns.transform.parent = chunkNuevo.transform;
+                        // Cubo cuboNuevo = cuboIns.GetComponent<Cubo>();
+                        // cuboNuevo.chunk = chunkNuevo;
+                        // cuboNuevo.posChunk = new Vector3(x,y,z);
+                        // cuboIns.name = "Cubo"+cuboNuevo.posChunk.ToString();
+                        // cuboNuevo.CambiaTipo(inventario.ItemActual().tipoCubo);
+                        Cubo cuboNuevo = chunkNuevo.GenerarCubo(x,y,z,posChunkNueva,inventario.ItemActual().infoAdicional).GetComponent<Cubo>();
+                        // chunkNuevo.chunk[x,y,z] = cuboIns;
                         
                         // Escondemos las caras no visibles
-                        List<GameObject> vecinos = cuboAct.chunk.ObtenerVecinos(x,y,z);
+                        List<GameObject> vecinos = cuboAct.chunk.ObtenerVecinos(posChunkNueva);
                         cuboNuevo.StartQuitarCaras(vecinos);
                         foreach(var vecino in vecinos){
                             if(vecino!=null){
@@ -216,7 +217,7 @@ public class PlayerController : MonoBehaviour
                         }
                         cuboAct.QuitarCaras(lado.name);
 
-                        Debug.Log("Cubo colocado en "+posChunkNueva+" en el chunk "+chunkNuevo.PosWorld);
+                        Debug.Log("Cubo "+cuboNuevo.name+" colocado en el chunk "+chunkNuevo.name);
 
                         inventario.Usar();
                     }
