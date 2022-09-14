@@ -105,6 +105,7 @@ public class Chunk : MonoBehaviour
         cuboComp.posChunk = posChunkNueva;
         cuboIns.name = "Cubo"+cuboComp.posChunk.ToString();
         cuboComp.CambiaTipo(tipo);
+        chunk[(int)posChunkNueva.x,(int)posChunkNueva.y,(int)posChunkNueva.z] = cuboIns;
         return cuboIns;
     }
 
@@ -114,7 +115,7 @@ public class Chunk : MonoBehaviour
         for(int z=0;z<profundidad;z++){
             for(int y=0;y<height;y++){
                 for(int x=0;x<width;x++){
-                    chunk[x,y,z] = GenerarCubo(x,y,z,"tierra");
+                    chunk[x,y,z] = GenerarCubo(x,y,z,"grass");
                 }
             }
         }

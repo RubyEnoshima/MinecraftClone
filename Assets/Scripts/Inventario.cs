@@ -29,9 +29,12 @@ public class Inventario
         return Objetos[seleccionado];
     }
 
-    public void CambiarSeleccionado(int n){
-        if(n>=0 && n<Objetos.Count)
+    public bool CambiarSeleccionado(int n){
+        if(n>=0 && n<Objetos.Count){
             seleccionado = n;
+            return true;
+        }
+        return false;
     }
 
     public void Usar(){

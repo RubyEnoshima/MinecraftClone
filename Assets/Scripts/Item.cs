@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Item : MonoBehaviour
+public class Item : ScriptableObject
 {
     public string nombre = "";
     public int cantidad = 0;

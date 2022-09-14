@@ -39,7 +39,7 @@ public class Cubo : MonoBehaviour
         if(!resaltado){
             foreach(Transform cara in transform){
                 Material[] matArray = cara.gameObject.GetComponent<Renderer>().materials;
-                matArray[1] = resalte;
+                matArray[2] = resalte;
                 cara.gameObject.GetComponent<Renderer>().materials = matArray;
             }
             resaltado = true;
@@ -51,7 +51,7 @@ public class Cubo : MonoBehaviour
             resaltado = false;
             foreach(Transform cara in transform){
                 Material[] matArray = cara.gameObject.GetComponent<Renderer>().materials;
-                matArray[1] = null;
+                matArray[2] = null;
                 cara.gameObject.GetComponent<Renderer>().materials = matArray;
             }
         }
@@ -68,8 +68,24 @@ public class Cubo : MonoBehaviour
     // Cambia cómo se ve el bloque según el tipo asignado
     void CambiaVisual(){
         Material bloque = Resources.Load<Material>(tipo);
-        foreach(Transform cara in transform){
-            cara.gameObject.GetComponent<Renderer>().material = bloque;
+        if(tipo!="grass"){
+            foreach(Transform cara in transform){
+                cara.gameObject.GetComponent<Renderer>().material = bloque;
+            }
+        }else{
+            Material tierra = Resources.Load<Material>("tierra");
+            Material lado = Resources.Load<Material>("grass_lado");
+            foreach(Transform cara in transform){
+                if(cara.name=="Arriba"){
+                    cara.gameObject.GetComponent<Renderer>().material = bloque;
+                }else{
+                    Material[] matArray = cara.gameObject.GetComponent<Renderer>().materials;
+                    matArray[0] = tierra;
+                    matArray[1] = lado;
+                    cara.gameObject.GetComponent<Renderer>().materials = matArray;
+
+                }
+            }
         }
     }
 

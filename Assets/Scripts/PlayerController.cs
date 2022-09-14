@@ -26,10 +26,15 @@ public class PlayerController : MonoBehaviour
 
     Cubo ultimoCubo = null;
 
+    public GameObject ObjetoActivo;
+    public GameObject InventarioGO;
+    private Transform[] ObjetosInventario;
+
     void Start() {
         inventario.DebugInventario();
         vida = vidaMax;
         if(!gravedadON) Gravedad = 0;
+        ObjetosInventario = InventarioGO.transform.GetComponentsInChildren<Transform>();
     }
 
     void Moverse(){
@@ -74,9 +79,8 @@ public class PlayerController : MonoBehaviour
         // Input para cambiar el seleccionado en el inventario
         bool numPresionado = false;
         for(int i=1;i<=7;i++){
-            if(Input.GetKeyDown(i.ToString())){
-                inventario.CambiarSeleccionado(i-1);
-                Debug.Log("Cambiado");
+            if(Input.GetKeyDown(i.ToString()) && inventario.CambiarSeleccionado(i-1)){
+                ObjetoActivo.transform.localPosition = ObjetosInventario[i-1].localPosition;
                 numPresionado = true;
                 break;
             }
@@ -106,7 +110,6 @@ public class PlayerController : MonoBehaviour
                 if(Input.GetButtonDown("Fire1")){
                     Vector3 pos = cuboAct.posChunk;
                     List<GameObject> vecinos = cuboAct.chunk.ObtenerVecinos(pos);
-                    cuboAct.chunk.chunk[(int)pos.x,(int)pos.y,(int)pos.z] = null;
                     foreach(var vecino in vecinos){
                         if(vecino!=null){
                             Cubo cuboVecino = vecino.GetComponent<Cubo>();
@@ -114,6 +117,7 @@ public class PlayerController : MonoBehaviour
 
                         }
                     }
+                    cuboAct.chunk.chunk[(int)pos.x,(int)pos.y,(int)pos.z] = null;
                     Destroy(cubo);
                 }
                 else if(Input.GetButtonDown("Fire2") && inventario.ItemActual().tipo=="cubo"){
@@ -196,15 +200,7 @@ public class PlayerController : MonoBehaviour
 
                     // Si el cubo no se encuentra donde el jugador, entonces lo ponemos
                     if(!CompruebaPos(posNueva)){
-                        // GameObject cuboIns = Instantiate(chunkNuevo.cubo,posNueva, Quaternion.identity);
-                        // cuboIns.transform.parent = chunkNuevo.transform;
-                        // Cubo cuboNuevo = cuboIns.GetComponent<Cubo>();
-                        // cuboNuevo.chunk = chunkNuevo;
-                        // cuboNuevo.posChunk = new Vector3(x,y,z);
-                        // cuboIns.name = "Cubo"+cuboNuevo.posChunk.ToString();
-                        // cuboNuevo.CambiaTipo(inventario.ItemActual().tipoCubo);
                         Cubo cuboNuevo = chunkNuevo.GenerarCubo(x,y,z,posChunkNueva,inventario.ItemActual().infoAdicional).GetComponent<Cubo>();
-                        // chunkNuevo.chunk[x,y,z] = cuboIns;
                         
                         // Escondemos las caras no visibles
                         List<GameObject> vecinos = cuboAct.chunk.ObtenerVecinos(posChunkNueva);
